@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Filament\Resources\BankTransactions\Pages;
+
+use App\Filament\Resources\BankTransactions\BankTransactionResource;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreateBankTransaction extends CreateRecord
+{
+    protected static string $resource = BankTransactionResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['type'] = (float)$data['amount'] >= 0 ? 'deposit' : 'withdrawal';
+        return $data;
+    }
+}
