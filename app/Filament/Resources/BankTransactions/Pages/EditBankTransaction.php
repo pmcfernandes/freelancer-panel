@@ -17,9 +17,8 @@ class EditBankTransaction extends EditRecord
         ];
     }
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    public function getRedirectUrl(): string
     {
-        $data['type'] = (float)$data['amount'] >= 0 ? 'deposit' : 'withdrawal';
-        return $data;
+        return static::getResource()::getUrl('index');
     }
 }

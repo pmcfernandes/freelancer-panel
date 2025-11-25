@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Filament\Enums\SubscriptionStatus;
+use App\Observers\SubscriptionObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ObservedBy([SubscriptionObserver::class])]
 class Subscription extends Model
 {
     use SoftDeletes;

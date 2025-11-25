@@ -24,6 +24,8 @@ class MileageResource extends Resource
 
     protected static string|null|\UnitEnum $navigationGroup = 'Finance';
 
+    protected static ?int $navigationSort = 10;
+
     protected static ?string $recordTitleAttribute = 'start_location';
 
     public static function form(Schema $schema): Schema

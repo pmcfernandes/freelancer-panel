@@ -42,5 +42,8 @@ class BankTransaction extends Model
         return $this->morphedByMany(Expense::class, 'transactionable', 'transactions', 'transaction_id');
     }
 
-
+    public function invoices(): MorphToMany
+    {
+        return $this->morphedByMany(Invoice::class, 'transactionable', 'transactions', 'transaction_id');
+    }
 }

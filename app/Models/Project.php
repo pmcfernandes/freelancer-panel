@@ -14,6 +14,7 @@ class Project extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'hourly_rate' => 'decimal:2',
         'status' => ProjectStatus::class,
     ];
 

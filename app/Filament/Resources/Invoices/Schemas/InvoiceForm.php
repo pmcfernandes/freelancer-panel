@@ -4,6 +4,9 @@ namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Filament\Enums\InvoiceStatus;
 use App\Filament\Resources\Customers\Schemas\CustomerForm;
+use App\Models\Invoice;
+use App\Models\TimeRecord;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -33,6 +36,8 @@ class InvoiceForm
             ]);
     }
 
+    private const int TAX = 23;
+
     private static function invoiceDetailsSchema(): array
     {
         return [
@@ -40,8 +45,10 @@ class InvoiceForm
                 ->required(),
             Select::make('customer_id')
                 ->relationship('customer', 'name')
-                ->required()
                 ->createOptionForm(fn(Schema $schema) => CustomerForm::configure($schema))
+                ->required()
+                ->live()
+                ->afterStateUpdated(fn (Get $get, Set $set) => $set('lines', self::getDefaultLines($get)))
                 ->columnSpanFull(),
             Repeater::make('lines')
                 ->relationship()
@@ -52,7 +59,7 @@ class InvoiceForm
                     $data['total'] = (int)$data['quantity'] * (float)$data['unit_price'];
                     return $data;
                 })
-                ->reactive()
+                ->live()
                 ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateTotalAmount($get, $set))
                 ->columnSpanFull(),
             TextInput::make('discount')
@@ -60,14 +67,14 @@ class InvoiceForm
                 ->required()
                 ->numeric()
                 ->default(0.0)
-                ->reactive()
+                ->live()
                 ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateTotalAmount($get, $set)),
             TextInput::make('shipping_costs')
                 ->label('Shipping Costs (EUR)')
                 ->required()
                 ->numeric()
                 ->default(0.0)
-                ->reactive()
+                ->live()
                 ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateTotalAmount($get, $set)),
          TextEntry::make('total_with_vat')
                 ->label('Total Amount')
@@ -94,7 +101,16 @@ class InvoiceForm
             Select::make('status')
                 ->options(InvoiceStatus::class)
                 ->default('draft')
-                ->required(),
+                ->required()
+                ->live(),
+            DatePicker::make('paid_at')
+                ->label('Paid At')
+                ->visible(fn (Get $get) => $get('status') === InvoiceStatus::PAID)
+                ->required(fn (Get $get) => $get('status') === InvoiceStatus::PAID),
+            Checkbox::make('create_bank_transaction')
+                ->label('Create Bank Transaction upon Payment')
+                ->visible(fn (Get $get) => $get('status') === InvoiceStatus::PAID)
+                ->default(false),
         ];
     }
 
@@ -118,7 +134,7 @@ class InvoiceForm
                 ->placeholder('VAT %')
                 ->required()
                 ->numeric()
-                ->default(23)
+                ->default(static::TAX)
                 ->columnSpan(1),
             TextInput::make('unit_price')
                 ->hiddenLabel('Unit Price')
@@ -147,5 +163,49 @@ class InvoiceForm
 
         $totalAmount += $shippingCosts;
         $set('total_with_vat',  $totalAmount);
+    }
+
+    private static function getDefaultLines(Get $get): array
+    {
+        $customer_id = $get('customer_id');
+
+        if (!$customer_id) {
+            return [
+                [
+                    'quantity' => 1,
+                    'description' => '',
+                    'vat' => static::TAX,
+                    'unit_price' => 0.0,
+                ],
+            ];
+        }
+
+        $last_invoice = Invoice::where('customer_id', $customer_id)
+            ->orderBy('invoice_date', 'desc')
+            ->first();
+
+        $total_revenue_uninvoiced = TimeRecord::with(['project'])
+            ->whereHas('project', function ($query) use ($customer_id) {
+                $query->where('customer_id', $customer_id);
+            })
+            ->whereDate('record_date', '>', $last_invoice ? $last_invoice->invoice_date : '1970-01-01')
+            ->where('billable', true)
+            ->sum('revenue');
+
+
+        if ($last_invoice) {
+            $description = "Total hour worked after last invoice #" . $last_invoice->invoice_number;
+        } else {
+            $description = "Total hour worked";
+        }
+
+        return [
+            [
+                'quantity' => 1,
+                'description' => $description,
+                'vat' => static::TAX,
+                'unit_price' => $total_revenue_uninvoiced,
+            ]
+        ];
     }
 }

@@ -22,6 +22,8 @@ class BankTransactionResource extends Resource
 
     protected static string|null|\UnitEnum $navigationGroup = 'Finance';
 
+    protected static ?int $navigationSort = 10;
+
     protected static ?string $navigationLabel = 'Bank Transactions';
 
     protected static string $title = 'Bank Transactions';

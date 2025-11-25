@@ -8,4 +8,16 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateNote extends CreateRecord
 {
     protected static string $resource = NoteResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['user_id'] = auth()->id();
+        return $data;
+    }
+
+    public function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
+    }
+
 }

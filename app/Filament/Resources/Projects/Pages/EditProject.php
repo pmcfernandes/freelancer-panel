@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Filament\Resources\Projects\Widgets\ProjectEditWidget;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -15,5 +16,17 @@ class EditProject extends EditRecord
         return [
             DeleteAction::make(),
         ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ProjectEditWidget::class,
+        ];
+    }
+
+    public function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
     }
 }

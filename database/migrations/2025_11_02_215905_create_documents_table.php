@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('customer_id')
                 ->constrained('customers')
                 ->cascadeOnDelete();
-            $table->string('attachment_path')->nullable();
+            $table->string('attachment')->nullable();
             $table->foreignId('company_id')
                 ->constrained('companies')
                 ->cascadeOnDelete();

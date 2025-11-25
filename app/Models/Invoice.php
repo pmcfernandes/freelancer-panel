@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use App\Filament\Enums\InvoiceStatus;
+use App\Observers\InvoiceObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ObservedBy([InvoiceObserver::class])]
 class Invoice extends Model
 {
     use SoftDeletes;
@@ -18,8 +22,10 @@ class Invoice extends Model
         'total_amount' => 'decimal:2',
         'status' => InvoiceStatus::class,
         'payment_terms' => 'integer',
-        'discount' => 'integer',
+        'discount' => 'decimal:2',
         'shipping_costs' => 'decimal:2',
+        'paid_at' => 'date',
+        'create_bank_transaction' => 'boolean'
     ];
 
     protected $appends = [
@@ -31,7 +37,9 @@ class Invoice extends Model
         'invoice_number',
         'invoice_date',
         'due_date',
+        'paid_at',
         'total_amount',
+        'create_bank_transaction',
         'status',
         'payment_terms',
         'discount',
@@ -59,5 +67,16 @@ class Invoice extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function bankTransactions(): MorphToMany
+    {
+        return $this->morphToMany(
+            BankTransaction::class,
+            'transactionable',
+            'transactions',
+            'transactionable_id',
+            'transaction_id'
+        );
     }
 }

@@ -30,6 +30,10 @@ class TimeRecordWidget extends StatsOverviewWidget
     private function getRevenue(): float
     {
         $total = TimeRecord::all()->reduce(function ($gain, TimeRecord $timeRecord) {
+            if ($timeRecord->billable === false) {
+                return $gain;
+            }
+
             return $gain + $timeRecord->revenue;
         });
 

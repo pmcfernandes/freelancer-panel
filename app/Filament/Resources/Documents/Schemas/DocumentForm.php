@@ -28,6 +28,7 @@ class DocumentForm
                 Forms\Components\FileUpload::make('attachment')
                     ->label('File')
                     ->required()
+                    ->downloadable()
                     ->columnSpanFull(),
             ]);
     }

@@ -22,6 +22,8 @@ class TimeRecordResource extends Resource
 
     protected static string|null|\UnitEnum $navigationGroup = 'Projects';
 
+    protected static ?int $navigationSort = 20;
+
     protected static ?string $recordTitleAttribute = 'description';
 
     public static function form(Schema $schema): Schema
@@ -49,4 +51,6 @@ class TimeRecordResource extends Resource
             'edit' => EditTimeRecord::route('/{record}/edit'),
         ];
     }
+
+
 }

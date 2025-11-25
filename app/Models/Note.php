@@ -22,12 +22,18 @@ class Note extends Model
         'contact_id',
         'type',
         'date',
+        'user_id',
         'company_id',
     ];
 
     public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function company(): BelongsTo

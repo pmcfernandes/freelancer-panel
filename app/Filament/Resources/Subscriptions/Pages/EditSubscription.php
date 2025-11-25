@@ -16,8 +16,11 @@ class EditSubscription extends EditRecord
     {
         return [
             DeleteAction::make(),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
         ];
+    }
+
+    public function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
     }
 }

@@ -68,14 +68,15 @@ class BankTransactionsTable
                     ->numeric()
                     ->sortable()
                     ->suffix('€')
-                    ->width(120)
-                    ->color(fn(BankTransaction $record): string => $record->type == 'deposit'  ? 'success' : 'danger'),
+                    ->color(fn(BankTransaction $record): string => $record->type->getColor())
+                    ->width(120),
                 TextColumn::make('transaction_date')
                     ->label('Date')
                     ->date('d-m-Y')
                     ->sortable()
                     ->width(120),
             ])
+            ->defaultSort('transaction_date', 'desc')
             ->headerActions([
                 CreateAction::make(),
                 AttachAction::make()

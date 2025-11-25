@@ -21,11 +21,14 @@ class ExpenseResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
 
-    protected static ?string $recordTitleAttribute = 'description';
 
     protected static string|null|\UnitEnum $navigationGroup = 'Finance';
 
+    protected static ?int $navigationSort = 10;
+
     protected static ?string $navigationLabel = 'Expenses';
+
+    protected static ?string $recordTitleAttribute = 'description';
 
     public static function form(Schema $schema): Schema
     {

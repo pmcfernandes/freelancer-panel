@@ -11,7 +11,7 @@ class SubscriptionWidget extends StatsOverviewWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Subscriptions', $this->getTotalEntries()),
+            Stat::make('Active Subscriptions', $this->getTotalEntries()),
             Stat::make('Estimated monthly costs', '€' . number_format($this->getTotalMonthlyExpenses(), 2)),
             Stat::make('Estimated yearly costs', '€' . number_format($this->getEstimativesCostsPerYear(), 2)),
         ];
@@ -19,44 +19,40 @@ class SubscriptionWidget extends StatsOverviewWidget
 
     private function getTotalEntries(): int
     {
-        return Subscription::count();
+        return Subscription::where('status', 'active')->count();
     }
 
     private function getTotalMonthlyExpenses(): float
     {
-        $year = now()->year;
-
-        $monthly = Subscription::where('interval', '1')
-            ->whereYear('created_at', $year)
+        $monthly = Subscription::where('status', 'active')
+            ->where('interval', '1')
             ->sum('price');
 
-        $quartely = Subscription::where('interval', '2')
-            ->whereYear('created_at', $year)
+        $quarterly = Subscription::where('status', 'active')
+            ->where('interval', '2')
             ->sum('price');
 
-        $yearly = Subscription::where('interval', '3')
-            ->whereYear('created_at', $year)
+        $yearly = Subscription::where('status', 'active')
+            ->where('interval', '3')
             ->sum('price');
 
-        return $monthly + ($quartely / 4) + ($yearly / 12);
+        return $monthly + ($quarterly / 4) + ($yearly / 12);
     }
 
     private function getEstimativesCostsPerYear(): float
     {
-        $year = now()->year;
-
-        $monthly = Subscription::where('interval', '1')
-            ->whereYear('created_at', $year)
+        $monthly = Subscription::where('status', 'active')
+            ->where('interval', '1')
             ->sum('price') * 12;
 
-        $quartely = Subscription::where('interval', '2')
-            ->whereYear('created_at', $year)
+        $quarterly = Subscription::where('status', 'active')
+            ->where('interval', '2')
             ->sum('price') * 4;
 
-        $yearly = Subscription::where('interval', '3')
-            ->whereYear('created_at', $year)
+        $yearly = Subscription::where('status', 'active')
+            ->where('interval', '3')
             ->sum('price');
 
-        return $monthly + $quartely + $yearly;
+        return $monthly + $quarterly + $yearly;
     }
 }

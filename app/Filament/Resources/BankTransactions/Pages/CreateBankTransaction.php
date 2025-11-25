@@ -9,9 +9,8 @@ class CreateBankTransaction extends CreateRecord
 {
     protected static string $resource = BankTransactionResource::class;
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    public function getRedirectUrl(): string
     {
-        $data['type'] = (float)$data['amount'] >= 0 ? 'deposit' : 'withdrawal';
-        return $data;
+        return static::getResource()::getUrl('index');
     }
 }
